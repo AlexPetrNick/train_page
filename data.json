@@ -1,0 +1,36 @@
+{
+ "days": {
+  "2026-11-03": {
+   "steps": 16875,
+   "kcal": 2458,
+   "activeMin": 177,
+   "workout": "Силовая A",
+   "workoutMin": 36,
+   "workoutKcal": 283,
+   "hrAvg": 113,
+   "hrMax": 148,
+   "effort": 3
+  },
+  "2026-11-04": {
+   "steps": 24000,
+   "workout": "Кардио"
+  },
+  "2026-11-05": {
+   "steps": 14477,
+   "kcal": 2449,
+   "workout": "Силовая B",
+   "workoutMin": 46,
+   "workoutKcal": 357,
+   "hrAvg": 110,
+   "hrMax": 146
+  },
+  "2026-11-07": {
+   "workout": "Силовая A",
+   "workoutMin": 43,
+   "workoutKcal": 385,
+   "hrAvg": 127,
+   "hrMax": 151,
+   "effort": 4
+  }
+ }
+}

@@ -1,0 +1,421 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>План на сегодня</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=Manrope:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: sticky weekly scoreboard on top, then one column "today" card stack */
+:root {
+  --bg: #eef1ee;
+  --surface: #ffffff;
+  --ink: #17201c;
+  --muted: #5d6b64;
+  --line: #d5ddd8;
+  --accent: #0f6b55;
+  --accent-soft: #d8ece5;
+  --hot: #e2572b;
+  --bar: #bfd3ca;
+  --head-bg: #17201c;
+  --head-ink: #f2f5f3;
+  --head-muted: #9fb2a9;
+  --display: "Unbounded", "Arial Black", system-ui, sans-serif;
+  --body: "Manrope", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #111613; --surface: #19201c; --ink: #e6ece8; --muted: #93a49b; --line: #2a342f;
+  --accent: #4fc3a1; --accent-soft: #1d3a31; --hot: #ff7a4d; --bar: #2f4a3f;
+  --head-bg: #0b0f0d; --head-ink: #eef3f0; --head-muted: #8aa197; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #111613; --surface: #19201c; --ink: #e6ece8; --muted: #93a49b; --line: #2a342f;
+  --accent: #4fc3a1; --accent-soft: #1d3a31; --hot: #ff7a4d; --bar: #2f4a3f;
+  --head-bg: #0b0f0d; --head-ink: #eef3f0; --head-muted: #8aa197; color-scheme: dark }
+
+* { box-sizing: border-box }
+html { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px) }
+body { margin: 0 }
+img { max-width: 100% }
+[hidden] { display: none !important }
+.player { position: relative; width: 100%; aspect-ratio: 16/9; border-radius: 8px; overflow: hidden; background: #000 }
+.player iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0 }
+.vlink.on, .vbtn.on { outline: 2px solid var(--hot); outline-offset: 1px }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.5 }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--head-bg) }
+.wrap { max-width: 760px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)) }
+
+header { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--head-bg); color: var(--head-ink) }
+header .wrap { padding-block: 12px 14px; display: grid; gap: 10px }
+.hrow { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap }
+.brand { font-family: var(--display); font-weight: 700; font-size: 15px; letter-spacing: .02em }
+.wk { font-size: 12px; color: var(--head-muted); letter-spacing: .06em; text-transform: uppercase }
+.stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px }
+.stat { min-width: 0 }
+.stat b { display: block; font-family: var(--display); font-weight: 500; font-size: 20px; font-variant-numeric: tabular-nums; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
+.stat span { font-size: 11px; color: var(--head-muted); letter-spacing: .04em; text-transform: uppercase }
+.stat small { font-size: 12px; color: var(--head-muted); font-variant-numeric: tabular-nums }
+.spark { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; align-items: end; height: 34px }
+.spark i { display: block; background: #3b4a43; border-radius: 2px 2px 0 0; min-height: 3px; position: relative }
+.spark i.ok { background: var(--accent) }
+.spark i.now { outline: 1px solid var(--head-ink); outline-offset: 1px }
+.days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; font-size: 10px; color: var(--head-muted); text-align: center; letter-spacing: .04em; margin-top: -4px }
+@media (max-width: 520px) { .stats { grid-template-columns: repeat(2, minmax(0, 1fr)) } .stat b { font-size: 18px } header { position: static } }
+
+main .wrap { padding-block: 20px 48px; display: grid; gap: 18px }
+.today h1 { font-family: var(--display); font-weight: 700; font-size: clamp(22px, 5vw, 30px); line-height: 1.15; margin: 0; text-wrap: balance }
+.today p { margin: 6px 0 0; color: var(--muted) }
+.chip { display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; background: var(--accent-soft); color: var(--accent) }
+.chip.hot { background: color-mix(in srgb, var(--hot) 16%, transparent); color: var(--hot) }
+
+.block { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px; display: grid; gap: 12px }
+.bhead { display: flex; gap: 12px; align-items: flex-start }
+.bhead h2 { margin: 0; font-size: 17px; font-weight: 700; line-height: 1.3 }
+.bhead .meta { font-size: 13px; color: var(--muted) }
+.bhead .grow { flex: 1; min-width: 0 }
+.check { appearance: none; flex: none; width: 28px; height: 28px; border-radius: 50%; border: 2px solid var(--line); background: var(--surface); cursor: pointer; display: grid; place-items: center; margin-top: 1px }
+.check::after { content: ""; width: 10px; height: 6px; border-left: 2.5px solid transparent; border-bottom: 2.5px solid transparent; transform: rotate(-45deg) translate(1px, -1px) }
+.check:checked { background: var(--accent); border-color: var(--accent) }
+.check:checked::after { border-color: #fff }
+.check:focus-visible { outline: 2px solid var(--hot); outline-offset: 2px }
+.done .bhead h2 { color: var(--muted) }
+
+.vbtn { display: inline-flex; align-items: center; gap: 8px; text-decoration: none; font-weight: 700; font-size: 14px; color: #fff; background: var(--hot); padding: 9px 14px; border-radius: 8px; justify-self: start }
+.vbtn::before { content: ""; border-left: 9px solid #fff; border-top: 6px solid transparent; border-bottom: 6px solid transparent }
+.vbtn:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px }
+.links { display: flex; flex-wrap: wrap; gap: 8px }
+.vlink { font-size: 13px; font-weight: 600; color: var(--accent); text-decoration: none; border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px }
+.vlink::before { content: "▶ "; font-size: 10px }
+
+.ex { display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: 14px; padding-top: 12px; border-top: 1px solid var(--line); align-items: center }
+.ex img { width: 150px; aspect-ratio: 4/3; object-fit: cover; border-radius: 6px; background: var(--bg); max-width: 100% }
+.ex .nogif { width: 150px; max-width: 100%; aspect-ratio: 4/3; border-radius: 6px; background: var(--accent-soft); color: var(--accent); display: grid; place-items: center; font-size: 12px; font-weight: 600; text-align: center; padding: 8px }
+.ex h3 { margin: 0; font-size: 15px; font-weight: 700 }
+.ex .reps { font-family: var(--display); font-weight: 500; font-size: 18px; color: var(--ink); font-variant-numeric: tabular-nums }
+.ex .tip { font-size: 13px; color: var(--muted); margin: 2px 0 6px }
+@media (max-width: 460px) { .ex { grid-template-columns: 110px minmax(0, 1fr) } .ex img, .ex .nogif { width: 110px } }
+
+.log { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px }
+.log label { font-size: 12px; color: var(--muted); display: grid; gap: 4px }
+.log input { font: inherit; font-size: 16px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); color: var(--ink); width: 100%; min-width: 0; font-variant-numeric: tabular-nums }
+.log input:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px }
+.save { font: inherit; font-weight: 700; border: 0; border-radius: 8px; background: var(--accent); color: #fff; padding: 10px 16px; cursor: pointer; justify-self: start }
+.save:disabled { opacity: .6; cursor: default }
+.note { font-size: 13px; color: var(--muted) }
+@media (max-width: 460px) { .log { grid-template-columns: 1fr 1fr } }
+.daynav { display: flex; align-items: center; justify-content: space-between; gap: 12px }
+.arrow { font: inherit; font-size: 22px; font-weight: 700; width: 48px; height: 48px; border-radius: 50%; border: 1px solid var(--line); background: var(--surface); color: var(--ink); cursor: pointer; display: grid; place-items: center; flex: none }
+.arrow:hover { border-color: var(--accent); color: var(--accent) }
+.arrow:focus-visible, .tolink:focus-visible { outline: 2px solid var(--hot); outline-offset: 2px }
+.dl { display: grid; justify-items: center; gap: 2px; text-align: center }
+.dl b { font-family: var(--display); font-weight: 500; font-size: 15px; letter-spacing: .02em }
+.tolink { font: inherit; font-size: 12px; font-weight: 600; color: var(--accent); background: none; border: 0; padding: 2px 4px; cursor: pointer; text-decoration: underline }
+.fact { margin-top: 6px; font-size: 13px; font-weight: 700; color: var(--accent); font-variant-numeric: tabular-nums }
+.done .bhead .fact { text-decoration: none }
+.foot { font-size: 12px; color: var(--muted) }
+.foot a { color: var(--accent) }
+@media (prefers-reduced-motion: no-preference) { .check { transition: background .15s, border-color .15s } }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="hrow"><span class="brand">До 65 кг</span><span class="wk" id="wkLabel">Неделя</span></div>
+    <div class="stats">
+      <div class="stat"><span>Шаги за неделю</span><b id="sSteps">—</b><small id="sStepsAvg">&nbsp;</small></div>
+      <div class="stat"><span>Сожжено, ккал</span><b id="sKcal">—</b><small id="sKcalAvg">&nbsp;</small></div>
+      <div class="stat"><span>Тренировки</span><b id="sWork">—</b><small id="sWorkMin">&nbsp;</small></div>
+      <div class="stat"><span>Вес, кг</span><b id="sWeight">—</b><small id="sWeightNote">&nbsp;</small></div>
+    </div>
+    <div class="spark" id="spark" aria-label="Шаги по дням недели"></div>
+    <div class="days"><span>пн</span><span>вт</span><span>ср</span><span>чт</span><span>пт</span><span>сб</span><span>вс</span></div>
+  </div>
+</header>
+
+<main>
+  <div class="wrap" id="app">
+    <nav class="daynav" aria-label="Выбор дня">
+      <button class="arrow" id="prevDay" type="button" aria-label="Предыдущий день">←</button>
+      <div class="dl"><b id="dayLabel">Сегодня</b><button class="tolink" id="backToday" type="button" hidden>к сегодня</button></div>
+      <button class="arrow" id="nextDay" type="button" aria-label="Следующий день">→</button>
+    </nav>
+    <section class="today">
+      <span class="chip" id="cycleChip">Цикл 1</span>
+      <h1 id="title">План на сегодня</h1>
+      <p id="sub"></p>
+    </section>
+    <div id="blocks" style="display:grid;gap:18px"></div>
+
+    <p class="note" id="saveNote"></p>
+
+    <p class="foot">Полный план, питание и рецепты: <a href="https://claude.ai/artifact/TmhDxpBRrg17ez3ZwhCrw1" target="_blank" rel="noopener">документ с планом</a>. Видео играют прямо на странице: нажми на кнопку, и плеер откроется в карточке.</p>
+  </div>
+</main>
+
+<script>
+(function () {
+  const YT = id => "https://www.youtube.com/watch?v=" + id;
+  const START = new Date(2026, 10, 3); // 3 ноября 2026, вторник = «Пн» плана
+
+  const EX = {
+    lunge:   { n: "Болгарские выпады", gif: "anim/Split_Squats.webp", v: "HDL33K7rYGc", tip: "Задняя нога на табуретке, колено по линии носка." },
+    push:    { n: "Отжимания, ноги на табуретке", gif: "anim/Push-Ups_With_Feet_Elevated.webp", v: "LCH9HDXSKv0", tip: "Тело прямое, локти под 45°." },
+    superman:{ n: "Супермен (лодочка)", gif: "anim/Superman.webp", v: "O45VWmcWojA", tip: "Лёжа на животе, вверху держи 2 сек." },
+    bridge1: { n: "Ягодичный мост на одной ноге", gif: "anim/Single_Leg_Glute_Bridge.webp", v: "dtWBAJbuuKg", tip: "Толкайся пяткой, вверху сожми ягодицу." },
+    plank:   { n: "Планка", gif: "anim/Plank.webp", v: "QWYFZosEovE", tip: "Локти под плечами, поясница не провисает." },
+    squat:   { n: "Приседания", gif: "anim/Bodyweight_Squat.webp", v: "0jR4FxC2s6c", tip: "Вниз 3 секунды, до параллели." },
+    thrust:  { n: "Мост от табуретки (хип-траст)", gif: "anim/Barbell_Hip_Thrust.webp", v: "21HYzhCPwJI", tip: "Лопатки на табуретке, без веса." },
+    pike:    { n: "Пайк-отжимания", gif: null, v: "SCNI4TBFOnA", tip: "Таз высоко, макушку к полу между ладонями." },
+    ytw:     { n: "Y-T-W лёжа на животе", gif: null, v: "LyEBEGafDxw", tip: "1 круг = Y, T и W по разу. Тяжело? Замени на супермен 3 × 10." },
+    rlunge:  { n: "Обратные выпады", gif: "anim/Dumbbell_Rear_Lunge.webp", v: "-n201mLoEhg", tip: "Шаг назад, оба колена 90°." },
+    climber: { n: "Скалолаз", gif: "anim/Mountain_Climbers.webp", v: "XbMvNlCUnXA", tip: "Колени к груди по очереди, таз не задирай." },
+    side:    { n: "Боковая планка", gif: "anim/Side_Bridge.webp", v: "q4hzrrvIFtk", tip: "На каждую сторону." },
+    rope:    { n: "Скакалка или бег на месте", gif: "anim/Rope_Jumping.webp", v: "Q6wLjVizmGg", tip: "30 сек работа / 60 сек отдых. Без прыжков: шаг с высокими коленями." }
+  };
+
+  const A = (l, p, s, b, pl) => ({ kind: "A", list: [["lunge", l], ["push", p], ["superman", s], ["bridge1", b], ["plank", pl]] });
+  const B = (sq, th, pk, y, rl, cl, sd, thName) => ({ kind: "B", list: [["squat", sq], ["thrust", th, thName], ["pike", pk], ["ytw", y], ["rlunge", rl], ["climber", cl], ["side", sd]] });
+  const C = rounds => ({ kind: "C", rounds });
+  const W = text => ({ kind: "W", text });
+  const R = text => ({ kind: "R", text });
+  const M = () => ({ kind: "M" });
+
+  const A_w1hard = A("4 × 10 на ногу", "4 × 12", "4 × 12", "4 × 12", "3 × 45 сек");
+  const A_w3 = A("4 × 12 на ногу", "4 × 8–10, пауза 2 сек внизу", "4 × 10, пауза 3 сек вверху", "4 × 15", "3 × 50 сек");
+  const B_w2 = B("4 × 12–15", "3 × 10 на одной ноге", "3 × 8", "4 круга по 8", "3 × 10 на ногу", "3 × 40 сек", "3 × 25 сек");
+  const B_w2b = B("4 × 13–16", "3 × 11 на одной ноге", "3 × 9", "4 круга по 9", "3 × 11 на ногу", "3 × 45 сек", "3 × 30 сек");
+  const B_w3 = B("4 × 15–20", "4 × 12 на одной ноге", "3 × 10", "4 круга по 10", "3 × 12 на ногу", "3 × 45 сек", "3 × 30 сек");
+  const light = s => ({ kind: s.kind, light: true, list: s.list.map(([k, r, x]) => [k, r.replace(/^\d/, "2–3"), x]) });
+
+  // index 0..6 = «Пн..Вс» плана (= вт..пн календаря)
+  const PLAN = [
+    [A("3 × 8 на ногу", "3 × 8–10", "3 × 10", "3 × 10", "3 × 30 сек"), C(8), B("3 × 12", "3 × 15", "3 × 6", "3 круга по 6", "3 × 8 на ногу", "3 × 30 сек", "2 × 20 сек"), M(), A_w1hard, W(60), R()],
+    [B_w2, C(10), A_w1hard, M(), B_w2b, W("75 мин или 6 раундов лестницы"), R()],
+    [A_w3, C(12), B_w3, M(), A_w3, W("90 мин или 8 раундов лестницы"), R()],
+    [light(B_w3), C(8), light(A_w3), M(), light(B_w3), W("60–90 мин"), R("Замерь талию и сфотографируйся, пришли цифры, соберу следующий цикл.")]
+  ];
+
+  // утренняя зарядка по календарному дню (0 = вс)
+  const MORNING = {
+    1: ["IYtubDQenJk", "Энергичная, 15 мин"], 2: ["jTtBY4syEYs", "Лёгкая, 10 мин"], 3: ["qP3qobZJZQI", "Активная, 12 мин"],
+    4: ["jTtBY4syEYs", "Лёгкая, 10 мин"], 5: ["x1glJKJOVIU", "«Каждый мужчина должен…», ATLETIZM"], 6: ["jTtBY4syEYs", "Лёгкая, 10 мин"],
+    0: ["0WpPi3jmDzk", "На всё тело, 15 мин"]
+  };
+  const MORE = [["TkCQ0f8bd-g", "10 мин, энергия"], ["2W_utOaVQtw", "Прямая спина"], ["uGLTDdC2CqA", "11 мин на всё тело"], ["QDA8FksveM4", "Один блок на всё тело"]];
+
+  const DOW = ["воскресенье", "понедельник", "вторник", "среда", "четверг", "пятница", "суббота"];
+  const MON = ["января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"];
+  const pad = n => String(n).padStart(2, "0");
+  const key = d => d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate());
+  const fmt = n => Math.round(n).toLocaleString("ru-RU");
+
+  const now = new Date();
+  const realToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const realKey = key(realToday);
+  let cur = new Date(realToday);   // выбранный день
+  let curKey, dayIdx, week, inCycle, session, weekKeys;
+
+  let days = {};     // date -> data
+  let db = null;
+
+  const el = (tag, attrs, ...kids) => {
+    const e = document.createElement(tag);
+    for (const k in attrs || {}) { if (k === "class") e.className = attrs[k]; else if (k === "text") e.textContent = attrs[k]; else e.setAttribute(k, attrs[k]); }
+    kids.flat().forEach(c => c != null && e.append(c));
+    return e;
+  };
+  const vbtn = (id, label) => el("a", { class: "vbtn", href: YT(id), "data-yt": id, text: label || "Смотреть видео" });
+  const vlink = (id, t) => el("a", { class: "vlink", href: YT(id), "data-yt": id, text: t });
+  document.addEventListener("click", e => {
+    const a = e.target.closest && e.target.closest("[data-yt]"); if (!a) return;
+    e.preventDefault();
+    const card = a.closest(".block") || a.parentElement;
+    const anchor = a.closest(".ex") || a.closest(".links") || a;
+    let p = card.querySelector(".player");
+    const same = p && p.dataset.id === a.dataset.yt;
+    if (p) p.remove();
+    card.querySelectorAll(".on").forEach(x => x.classList.remove("on"));
+    if (same) return;
+    p = el("div", { class: "player" });
+    p.dataset.id = a.dataset.yt;
+    p.append(el("iframe", { src: "https://www.youtube-nocookie.com/embed/" + a.dataset.yt + "?autoplay=1&rel=0&playsinline=1", allow: "autoplay; encrypted-media; picture-in-picture; fullscreen", allowfullscreen: "", title: a.textContent }));
+    anchor.after(p); a.classList.add("on");
+  });
+
+  let tasks = [];
+  function block(id, title, meta, body) {
+    tasks.push(id);
+    const cb = el("input", { type: "checkbox", class: "check", id: "t-" + id, "aria-label": "Сделано: " + title });
+    cb.addEventListener("change", () => toggle(id, cb.checked));
+    return el("section", { class: "block", "data-task": id },
+      el("div", { class: "bhead" }, cb, el("div", { class: "grow" }, el("h2", { text: title }), meta ? el("div", { class: "meta", text: meta }) : null, el("div", { class: "fact", id: "f-" + id, hidden: "" }))),
+      body);
+  }
+  function exRow(k, reps, nameOverride) {
+    const x = EX[k];
+    const pic = x.gif ? el("img", { src: x.gif, alt: x.n, loading: "lazy" }) : el("div", { class: "nogif", text: "Гифки нет, смотри видео" });
+    return el("div", { class: "ex" }, pic, el("div", {},
+      el("h3", { text: nameOverride || x.n }), el("div", { class: "reps", text: reps }), el("div", { class: "tip", text: x.tip }),
+      vlink(x.v, "Видео")));
+  }
+
+  const blocks = document.getElementById("blocks");
+  const title = document.getElementById("title"), sub = document.getElementById("sub"), chip = document.getElementById("cycleChip");
+  const dayLabel = document.getElementById("dayLabel"), backToday = document.getElementById("backToday");
+
+  function renderDay() {
+    curKey = key(cur);
+    dayIdx = Math.round((cur - START) / 864e5);
+    week = Math.floor(dayIdx / 7);
+    inCycle = dayIdx >= 0 && week < 4;
+    session = inCycle ? PLAN[week][dayIdx % 7] : null;
+    const mon = new Date(cur); mon.setDate(cur.getDate() - ((cur.getDay() + 6) % 7));
+    weekKeys = Array.from({ length: 7 }, (_, i) => { const d = new Date(mon); d.setDate(mon.getDate() + i); return key(d); });
+    const sun = new Date(mon); sun.setDate(mon.getDate() + 6);
+    document.getElementById("wkLabel").textContent = mon.getDate() + (mon.getMonth() !== sun.getMonth() ? " " + MON[mon.getMonth()] : "") + "–" + sun.getDate() + " " + MON[sun.getMonth()];
+
+    const diff = Math.round((cur - realToday) / 864e5);
+    dayLabel.textContent = diff === 0 ? "Сегодня" : diff === -1 ? "Вчера" : diff === 1 ? "Завтра" : cur.getDate() + " " + MON[cur.getMonth()];
+    backToday.hidden = diff === 0;
+
+    tasks = []; blocks.textContent = ""; chip.className = "chip";
+    const dateStr = DOW[cur.getDay()] + ", " + cur.getDate() + " " + MON[cur.getMonth()];
+    sub.textContent = dateStr[0].toUpperCase() + dateStr.slice(1) + (inCycle ? " · неделя " + (week + 1) + " из 4" : "");
+
+    const m = MORNING[cur.getDay()];
+    blocks.append(block("morning", "Утренняя зарядка", m[1] + " · Ivan Krasavin", [vbtn(m[0], "Включить зарядку"),
+      el("div", { class: "links" }, MORE.map(([id, t]) => vlink(id, t)))]));
+
+    if (!inCycle) {
+      title.textContent = dayIdx < 0 ? "Цикл ещё не начался" : "Цикл 1 закончен";
+      chip.textContent = "Пауза";
+      blocks.append(el("section", { class: "block" }, el("p", { class: "note", text: dayIdx < 0 ? "План стартовал 3 ноября." : "Пришли талию, средний вес и фото, и я соберу план на следующие 4 недели. Пока держи шаги и утреннюю зарядку." })));
+    } else if (session.kind === "A" || session.kind === "B") {
+      title.textContent = "Силовая " + session.kind + (session.light ? ", разгрузка" : "");
+      chip.textContent = "Силовая"; chip.className = "chip hot";
+      const meta = (session.light ? "По 2–3 подхода, с запасом 3 повтора. " : "") + "Разминка 8–10 мин, отдых между подходами 60–90 сек, в конце 5 мин растяжки.";
+      blocks.append(block("workout", "Силовая " + session.kind, meta, session.list.map(([k, r, nm]) => exRow(k, r, nm))));
+    } else if (session.kind === "C") {
+      title.textContent = "Кардио и 100 отжиманий";
+      chip.textContent = "Кардио"; chip.className = "chip hot";
+      blocks.append(block("workout", "Кардио: " + session.rounds + " раундов", "30 сек работа / 60 сек отдых, всего около " + Math.round(session.rounds * 1.5 + 8) + " мин с разминкой.",
+        [exRow("rope", session.rounds + " × 30 сек"), el("div", { class: "links" }, vlink("qct-gB6bukE", "Скакалка"), vlink("Y1khBnXE83Q", "Лёгкий вариант шагом"))]));
+    } else if (session.kind === "W") {
+      const t = typeof session.text === "number" ? session.text + " мин" : session.text;
+      title.textContent = "Ходьба " + t;
+      chip.textContent = "Ходьба";
+      blocks.append(block("workout", "Быстрая ходьба " + t, "Темп такой, чтобы дыхание чуть сбилось, но можно говорить. Можно разбить на два раза."));
+    } else if (session.kind === "M") {
+      title.textContent = "Разминка и растяжка";
+      chip.textContent = "Лёгкий день";
+      blocks.append(block("workout", "Разминка / растяжка 30–60 мин", "Твой комплекс vadison2man или любая зарядка из списка выше."));
+    } else {
+      title.textContent = "Отдых";
+      chip.textContent = "Отдых";
+      if (session.text) blocks.append(block("workout", "Замер в конце цикла", session.text));
+    }
+
+    if (inCycle && session.kind !== "A" && session.kind !== "B")
+      blocks.append(block("pushups", "100 отжиманий", "Подходами по 10–15, максимум 20. С правильной техникой."));
+
+    blocks.append(block("steps", "8–10 тыс. шагов", "Часы считают сами. Вечером пришли скрин, и шапка обновится."));
+
+    blocks.append(block("hourly", "Разминка раз в час", "Часы вибрируют через 50 мин без движения. Встаёшь и делаешь:", [
+      el("div", { class: "links" }, vlink("0jR4FxC2s6c", "Приседания × 15"), vlink("4ES8h7fn5yw", "Локоть к колену × 10 на сторону"), vlink("Y1khBnXE83Q", "Шаг на месте 30 сек")),
+      el("div", { class: "links" }, vlink("8f_8WvC0kpY", "Или 5 мин: живот и спина стоя"), vlink("r4wqKqlcNag", "Или 5 мин: осанка"))]));
+    paint();
+  }
+
+  function go(delta) { cur = new Date(cur.getFullYear(), cur.getMonth(), cur.getDate() + delta); renderDay(); }
+  document.getElementById("prevDay").addEventListener("click", () => go(-1));
+  document.getElementById("nextDay").addEventListener("click", () => go(1));
+  backToday.addEventListener("click", () => { cur = new Date(realToday); renderDay(); });
+  document.addEventListener("keydown", e => {
+    if (e.target.closest && e.target.closest("input, textarea")) return;
+    if (e.key === "ArrowLeft") go(-1); else if (e.key === "ArrowRight") go(1);
+  });
+  let tx = null, ty = null;
+  document.getElementById("app").addEventListener("touchstart", e => { tx = e.touches[0].clientX; ty = e.touches[0].clientY; }, { passive: true });
+  document.getElementById("app").addEventListener("touchend", e => {
+    if (tx == null) return;
+    const dx = e.changedTouches[0].clientX - tx, dy = e.changedTouches[0].clientY - ty; tx = null;
+    if (Math.abs(dx) > 70 && Math.abs(dx) > 2 * Math.abs(dy)) go(dx < 0 ? 1 : -1);
+  }, { passive: true });
+
+  // ----- state -----
+  function paintChecks() {
+    const d = days[curKey] || {};
+    const done = Object.assign({}, d.done || {});
+    if (d.workout) done.workout = true;
+    if (+d.steps >= 8000) done.steps = true;
+    const facts = {};
+    if (d.workout) facts.workout = "Выполнено: " + [d.workout, d.workoutMin && d.workoutMin + " мин", d.workoutKcal && d.workoutKcal + " ккал", d.hrAvg && "пульс " + d.hrAvg + (d.hrMax ? "/" + d.hrMax : ""), d.effort && "тяжесть " + d.effort + "/5"].filter(Boolean).join(" · ");
+    if (+d.steps) facts.steps = "Факт: " + fmt(+d.steps) + " шагов" + (+d.kcal ? " · всего " + fmt(+d.kcal) + " ккал" : "") + (+d.activeMin ? " · " + d.activeMin + " мин активности" : "");
+    tasks.forEach(t => {
+      const cb = document.getElementById("t-" + t); if (!cb) return;
+      cb.checked = !!done[t];
+      cb.closest(".block").classList.toggle("done", !!done[t]);
+      const f = document.getElementById("f-" + t);
+      if (f) { f.textContent = facts[t] || ""; f.hidden = !facts[t]; }
+    });
+  }
+  function paintHeader() {
+    let steps = 0, stepDays = 0, kcal = 0, kcalDays = 0, work = 0, wmin = 0, weights = [];
+    const bars = weekKeys.map(k => (days[k] && +days[k].steps) || 0);
+    weekKeys.forEach(k => {
+      const d = days[k]; if (!d) return;
+      if (+d.steps) { steps += +d.steps; stepDays++; }
+      if (+d.kcal) { kcal += +d.kcal; kcalDays++; }
+      if (d.workout) { work++; wmin += +d.workoutMin || 0; }
+      if (+d.weight) weights.push(+d.weight);
+    });
+    document.getElementById("sSteps").textContent = steps ? fmt(steps) : "—";
+    document.getElementById("sStepsAvg").textContent = stepDays ? "≈ " + fmt(steps / stepDays) + " в день" : "нет данных";
+    document.getElementById("sKcal").textContent = kcal ? fmt(kcal) : "—";
+    document.getElementById("sKcalAvg").textContent = kcalDays ? "≈ " + fmt(kcal / kcalDays) + " в день" : "нет данных";
+    document.getElementById("sWork").textContent = work + " из 5";
+    document.getElementById("sWorkMin").textContent = wmin ? fmt(wmin) + " мин" : " ";
+    document.getElementById("sWeight").textContent = weights.length ? (weights.reduce((a, b) => a + b, 0) / weights.length).toFixed(1) : "—";
+    document.getElementById("sWeightNote").textContent = weights.length ? "среднее за " + weights.length + " дн." : "взвешивайся утром";
+    const max = Math.max(12000, ...bars);
+    const spark = document.getElementById("spark"); spark.textContent = "";
+    bars.forEach((v, i) => {
+      const b = el("i", { title: v ? fmt(v) + " шагов" : "нет данных" });
+      b.style.height = Math.max(3, Math.round(v / max * 34)) + "px";
+      if (v >= 8000) b.classList.add("ok");
+      if (weekKeys[i] === curKey) b.classList.add("now");
+      spark.append(b);
+    });
+  }
+  function paint() { paintChecks(); paintHeader(); }
+
+  const note = document.getElementById("saveNote");
+  const LS = "fitplan-checks";
+  let local = {};
+  try { local = JSON.parse(localStorage.getItem(LS) || "{}"); } catch (e) { local = {}; }
+  let remote = {};
+  function merge() {
+    const out = {};
+    new Set([...Object.keys(remote), ...Object.keys(local)]).forEach(k => {
+      const r = remote[k] || {}, l = local[k] || {};
+      out[k] = Object.assign({}, r, { done: Object.assign({}, r.done || {}, l) });
+    });
+    days = out; paint();
+  }
+  function toggle(id, on) {
+    local[curKey] = Object.assign({}, local[curKey] || {}, { [id]: on });
+    try { localStorage.setItem(LS, JSON.stringify(local)); } catch (e) {}
+    merge();
+  }
+  renderDay();
+  merge();
+  fetch("data.json?t=" + Date.now(), { cache: "no-store" })
+    .then(r => r.ok ? r.json() : Promise.reject(new Error("HTTP " + r.status)))
+    .then(j => { remote = j.days || {}; merge(); })
+    .catch(e => { note.textContent = "Не удалось загрузить данные: " + e.message; });
+})();
+</script>
+</body>
+</html>
