@@ -116,6 +116,24 @@ main .wrap { padding-block: 20px 48px; display: grid; gap: 18px }
 .foot { font-size: 12px; color: var(--muted) }
 .foot a { color: var(--accent) }
 @media (prefers-reduced-motion: no-preference) { .check { transition: background .15s, border-color .15s } }
+
+/* rest timer */
+.rt { position: fixed; z-index: 20; right: max(16px, env(safe-area-inset-right, 0px)); bottom: calc(16px + env(safe-area-inset-bottom, 0px)); display: grid; justify-items: end; gap: 10px }
+.rt-fab { font: inherit; font-weight: 700; font-size: 15px; border: 0; border-radius: 999px; padding: 14px 20px; background: var(--hot); color: #fff; cursor: pointer; box-shadow: 0 6px 18px rgba(0,0,0,.25); font-variant-numeric: tabular-nums; min-width: 120px }
+.rt-fab.run { background: var(--accent) }
+.rt-fab.end { animation: rtblink .5s steps(2) 6 }
+@keyframes rtblink { 50% { background: var(--ink) } }
+.rt-panel { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 14px; box-shadow: 0 10px 30px rgba(0,0,0,.25); display: grid; gap: 12px; width: min(300px, calc(100vw - 32px)) }
+.rt-big { font-family: var(--display); font-size: 48px; font-weight: 500; text-align: center; font-variant-numeric: tabular-nums; line-height: 1 }
+.rt-bar { height: 6px; border-radius: 3px; background: var(--line); overflow: hidden }
+.rt-bar i { display: block; height: 100%; width: 0; background: var(--accent) }
+.rt-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px }
+.rt-grid button, .rt-row button { font: inherit; font-weight: 700; font-size: 15px; padding: 12px 0; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); cursor: pointer; font-variant-numeric: tabular-nums }
+.rt-grid button.sel { border-color: var(--accent); color: var(--accent) }
+.rt-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px }
+.rt-row .stop { color: var(--hot) }
+.rt button:focus-visible { outline: 2px solid var(--hot); outline-offset: 2px }
+main .wrap { padding-bottom: 110px }
 </style>
 </head>
 <body>
@@ -423,6 +441,83 @@ main .wrap { padding-block: 20px 48px; display: grid; gap: 18px }
     .then(r => r.ok ? r.json() : Promise.reject(new Error("HTTP " + r.status)))
     .then(j => { remote = j.days || {}; merge(); })
     .catch(e => { note.textContent = "Не удалось загрузить данные: " + e.message; });
+})();
+</script>
+
+<div class="rt" id="rt">
+  <div class="rt-panel" id="rtPanel" hidden>
+    <div class="rt-big" id="rtBig" aria-live="polite">1:30</div>
+    <div class="rt-bar"><i id="rtBar"></i></div>
+    <div class="rt-grid" id="rtPresets">
+      <button type="button" data-s="45">0:45</button><button type="button" data-s="60">1:00</button><button type="button" data-s="90" class="sel">1:30</button><button type="button" data-s="120">2:00</button>
+    </div>
+    <div class="rt-row">
+      <button type="button" id="rtMinus">−15</button>
+      <button type="button" id="rtPlus">+15</button>
+      <button type="button" id="rtStop" class="stop">Стоп</button>
+    </div>
+  </div>
+  <button class="rt-fab" id="rtFab" type="button" aria-expanded="false">⏱ Отдых</button>
+</div>
+<script>
+(function () {
+  const $ = id => document.getElementById(id);
+  const fab = $("rtFab"), panel = $("rtPanel"), big = $("rtBig"), bar = $("rtBar");
+  let dur = 90, end = 0, tick = null, ac = null, lock = null;
+  try { const v = +localStorage.getItem("rt-dur"); if (v) dur = v; } catch (e) {}
+  const mmss = t => Math.floor(t / 60) + ":" + String(Math.max(0, t % 60)).padStart(2, "0");
+  function markSel() { document.querySelectorAll("#rtPresets button").forEach(b => b.classList.toggle("sel", +b.dataset.s === dur)); }
+  function audio() {
+    try { ac = ac || new (window.AudioContext || window.webkitAudioContext)(); if (ac.state === "suspended") ac.resume(); } catch (e) { ac = null; }
+  }
+  function beep(times) {
+    if (!ac) return;
+    for (let i = 0; i < times; i++) {
+      const o = ac.createOscillator(), g = ac.createGain(), t = ac.currentTime + i * 0.35;
+      o.frequency.value = i === times - 1 ? 1320 : 880; o.type = "sine";
+      g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.5, t + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.25);
+      o.connect(g).connect(ac.destination); o.start(t); o.stop(t + 0.3);
+    }
+  }
+  async function wake(on) {
+    try { if (on && "wakeLock" in navigator && !lock) { lock = await navigator.wakeLock.request("screen"); lock.addEventListener("release", () => lock = null); } if (!on && lock) { await lock.release(); lock = null; } } catch (e) {}
+  }
+  function render() {
+    const left = end ? Math.ceil((end - Date.now()) / 1000) : dur;
+    big.textContent = mmss(Math.max(0, left));
+    bar.style.width = end ? Math.min(100, (1 - left / total) * 100) + "%" : "0";
+    fab.textContent = end ? "⏱ " + mmss(Math.max(0, left)) : "⏱ Отдых";
+    fab.classList.toggle("run", !!end);
+    return left;
+  }
+  let total = dur, warned = false;
+  function start(s) {
+    audio(); dur = s; total = s; warned = false; markSel();
+    try { localStorage.setItem("rt-dur", s); } catch (e) {}
+    end = Date.now() + s * 1000; fab.classList.remove("end"); wake(true);
+    clearInterval(tick); tick = setInterval(loop, 250); render();
+  }
+  function stop() { end = 0; clearInterval(tick); tick = null; wake(false); render(); }
+  function loop() {
+    const left = render();
+    if (left === 3 && !warned) { warned = true; beep(1); }
+    if (left <= 0) {
+      stop(); beep(3); fab.classList.add("end"); fab.textContent = "Подход!";
+      try { navigator.vibrate && navigator.vibrate([300, 150, 300, 150, 500]); } catch (e) {}
+      setTimeout(() => { if (!end) render(); }, 3000);
+    }
+  }
+  fab.addEventListener("click", () => {
+    audio();
+    if (panel.hidden) { panel.hidden = false; fab.setAttribute("aria-expanded", "true"); if (!end) start(dur); }
+    else { panel.hidden = true; fab.setAttribute("aria-expanded", "false"); }
+  });
+  $("rtPresets").addEventListener("click", e => { const b = e.target.closest("button"); if (b) start(+b.dataset.s); });
+  $("rtPlus").addEventListener("click", () => { if (end) { end += 15000; total += 15; render(); } else { dur += 15; total = dur; render(); } });
+  $("rtMinus").addEventListener("click", () => { if (end) { end -= 15000; total = Math.max(15, total - 15); render(); } else { dur = Math.max(15, dur - 15); total = dur; render(); } });
+  $("rtStop").addEventListener("click", () => { stop(); panel.hidden = true; fab.setAttribute("aria-expanded", "false"); });
+  document.addEventListener("visibilitychange", () => { if (end && !document.hidden) loop(); });
+  markSel(); render();
 })();
 </script>
 </body>
