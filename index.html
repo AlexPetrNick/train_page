@@ -117,6 +117,20 @@ main .wrap { padding-block: 20px 48px; display: grid; gap: 18px }
 .foot a { color: var(--accent) }
 @media (prefers-reduced-motion: no-preference) { .check { transition: background .15s, border-color .15s } }
 
+
+.pc { display: grid; gap: 10px }
+.pc-num { font-size: 15px; color: var(--muted); font-variant-numeric: tabular-nums }
+.pc-num b { font-family: var(--display); font-weight: 500; font-size: 32px; color: var(--ink) }
+.pc-bar { height: 8px; border-radius: 4px; background: var(--line); overflow: hidden }
+.pc-bar i { display: block; height: 100%; width: 0; background: var(--hot) }
+.pc-bar.full i { background: var(--accent) }
+.pc-btns { display: grid; grid-template-columns: repeat(4, 1fr) 1.4fr; gap: 6px }
+.pc-btns button { font: inherit; font-weight: 700; font-size: 16px; padding: 12px 0; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); cursor: pointer; font-variant-numeric: tabular-nums }
+.pc-btns button:active { background: var(--accent-soft) }
+.pc-btns .pc-undo { font-size: 13px; color: var(--muted) }
+.pc-btns button:disabled { opacity: .4; cursor: default }
+.pc-btns button:focus-visible { outline: 2px solid var(--hot); outline-offset: 2px }
+.pc-sets { font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums }
 /* rest timer */
 .rt { position: fixed; z-index: 20; right: max(16px, env(safe-area-inset-right, 0px)); bottom: calc(16px + env(safe-area-inset-bottom, 0px)); display: grid; justify-items: end; gap: 10px }
 .rt-fab { font: inherit; font-weight: 700; font-size: 15px; border: 0; border-radius: 999px; padding: 14px 20px; background: var(--hot); color: #fff; cursor: pointer; box-shadow: 0 6px 18px rgba(0,0,0,.25); font-variant-numeric: tabular-nums; min-width: 120px }
@@ -283,6 +297,41 @@ main .wrap { padding-bottom: 110px }
   const title = document.getElementById("title"), sub = document.getElementById("sub"), chip = document.getElementById("cycleChip");
   const dayLabel = document.getElementById("dayLabel"), backToday = document.getElementById("backToday");
 
+  const PK = "fitplan-push";
+  function loadPush() { try { return JSON.parse(localStorage.getItem(PK) || "{}"); } catch (e) { return {}; } }
+  function savePush(o) { try { localStorage.setItem(PK, JSON.stringify(o)); } catch (e) {} }
+  function pushCounter() {
+    const GOAL = 100, k = curKey;
+    const wrap = el("div", { class: "pc" });
+    const num = el("div", { class: "pc-num" });
+    const bar = el("div", { class: "pc-bar" }, el("i"));
+    const sets = el("div", { class: "pc-sets" });
+    const btns = el("div", { class: "pc-btns" });
+    function draw() {
+      const all = loadPush(), arr = all[k] || [], sum = arr.reduce((a, b) => a + b, 0);
+      num.textContent = "";
+      num.append(el("b", { text: String(sum) }), " / " + GOAL, el("span", { text: arr.length ? " · " + arr.length + " " + (arr.length % 10 === 1 && arr.length % 100 !== 11 ? "подход" : (arr.length % 10 >= 2 && arr.length % 10 <= 4 && (arr.length % 100 < 12 || arr.length % 100 > 14)) ? "подхода" : "подходов") : "" }));
+      bar.firstChild.style.width = Math.min(100, sum / GOAL * 100) + "%";
+      bar.classList.toggle("full", sum >= GOAL);
+      sets.textContent = arr.length ? arr.join(" + ") : "Сделал подход — нажми, сколько раз";
+      undo.disabled = !arr.length;
+      return sum;
+    }
+    function add(n) {
+      const all = loadPush(); const arr = all[k] || []; const before = arr.reduce((a, b) => a + b, 0);
+      arr.push(n); all[k] = arr; savePush(all);
+      const sum = draw();
+      if (before < GOAL && sum >= GOAL) toggle("pushups", true);
+    }
+    [10, 12, 15, 20].forEach(n => { const b = el("button", { type: "button", text: "+" + n }); b.addEventListener("click", () => add(n)); btns.append(b); });
+    const undo = el("button", { type: "button", class: "pc-undo", text: "Отменить" });
+    undo.addEventListener("click", () => { const all = loadPush(); const arr = all[k] || []; arr.pop(); all[k] = arr; savePush(all); draw(); });
+    btns.append(undo);
+    wrap.append(num, bar, btns, sets);
+    draw();
+    return wrap;
+  }
+
   function renderDay() {
     curKey = key(cur);
     dayIdx = Math.round((cur - START) / 864e5);
@@ -336,7 +385,7 @@ main .wrap { padding-bottom: 110px }
     }
 
     if (inCycle && session.kind !== "A" && session.kind !== "B")
-      blocks.append(block("pushups", "100 отжиманий", "Подходами по 10–15, максимум 20. С правильной техникой."));
+      blocks.append(block("pushups", "100 отжиманий", "Подходами по 10–15, максимум 20. С правильной техникой.", pushCounter()));
 
     if (inCycle && session.kind !== "A" && session.kind !== "B")
       blocks.append(block("shoulders", "Плечи, 5 мин", "Укрепляем выносливость плеч. Плечи всё время опущены от ушей, жжение нормально, острая боль или онемение — стоп.", [
