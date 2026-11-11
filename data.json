@@ -52,6 +52,16 @@
    "workoutKcal": 328,
    "hrAvg": 125,
    "hrMax": 163
+  },
+  "2026-11-11": {
+   "steps": 10287,
+   "kcal": 2041,
+   "activeMin": 97,
+   "workout": "Кардио (круговая)",
+   "workoutMin": 27,
+   "workoutKcal": 302,
+   "hrAvg": 150,
+   "hrMax": 171
   }
  }
 }
