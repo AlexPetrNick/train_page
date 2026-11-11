@@ -124,7 +124,8 @@ main .wrap { padding-block: 20px 48px; display: grid; gap: 18px }
 .pc-bar { height: 8px; border-radius: 4px; background: var(--line); overflow: hidden }
 .pc-bar i { display: block; height: 100%; width: 0; background: var(--hot) }
 .pc-bar.full i { background: var(--accent) }
-.pc-btns { display: grid; grid-template-columns: repeat(4, 1fr) 1.4fr; gap: 6px }
+.pc-btns { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px }
+.pc-btns .pc-undo { grid-column: 1 / -1; padding: 8px 0 }
 .pc-btns button { font: inherit; font-weight: 700; font-size: 16px; padding: 12px 0; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); cursor: pointer; font-variant-numeric: tabular-nums }
 .pc-btns button:active { background: var(--accent-soft) }
 .pc-btns .pc-undo { font-size: 13px; color: var(--muted) }
@@ -323,7 +324,7 @@ main .wrap { padding-bottom: 110px }
       const sum = draw();
       if (before < GOAL && sum >= GOAL) toggle("pushups", true);
     }
-    [10, 12, 15, 20].forEach(n => { const b = el("button", { type: "button", text: "+" + n }); b.addEventListener("click", () => add(n)); btns.append(b); });
+    [10, 15, 20, 25, 30].forEach(n => { const b = el("button", { type: "button", text: "+" + n }); b.addEventListener("click", () => add(n)); btns.append(b); });
     const undo = el("button", { type: "button", class: "pc-undo", text: "Отменить" });
     undo.addEventListener("click", () => { const all = loadPush(); const arr = all[k] || []; arr.pop(); all[k] = arr; savePush(all); draw(); });
     btns.append(undo);
