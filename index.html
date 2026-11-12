@@ -205,28 +205,30 @@ main .wrap { padding-bottom: 110px }
     rlunge:  { n: "Обратные выпады", gif: "anim/Dumbbell_Rear_Lunge.webp", v: "-n201mLoEhg", tip: "Шаг назад, оба колена 90°." },
     climber: { n: "Скалолаз", gif: "anim/Mountain_Climbers.webp", v: "XbMvNlCUnXA", tip: "Колени к груди по очереди, таз не задирай." },
     side:    { n: "Боковая планка", gif: "anim/Side_Bridge.webp", v: "q4hzrrvIFtk", tip: "На каждую сторону." },
+    rcrunch: { n: "Обратные скручивания", gif: "anim/Reverse_Crunch.webp", v: "g3HX9ixGKe4", tip: "Лёжа на спине, колени к груди, таз отрывай от пола силой пресса. Медленно вниз, ноги пол не касаются." },
+    bike:    { n: "Велосипед", gif: "anim/Air_Bike.webp", v: "2sz4FeDU5IA", tip: "Локоть к противоположному колену, вторая нога вытянута. Без рывков, поясница прижата к полу." },
     rope:    { n: "Скакалка или бег на месте", gif: "anim/Rope_Jumping.webp", v: "Q6wLjVizmGg", tip: "30 сек работа / 60 сек отдых. Без прыжков: шаг с высокими коленями." }
   };
 
-  const A = (l, p, s, b, pl) => ({ kind: "A", list: [["lunge", l], ["push", p], ["superman", s], ["bridge1", b], ["plank", pl]] });
-  const B = (sq, th, pk, y, rl, cl, sd, thName) => ({ kind: "B", list: [["squat", sq], ["thrust", th, thName], ["pike", pk], ["ytw", y], ["rlunge", rl], ["climber", cl], ["side", sd]] });
+  const A = (l, p, s, b, pl, ab = "3 × 12") => ({ kind: "A", list: [["lunge", l], ["push", p], ["superman", s], ["bridge1", b], ["plank", pl], ["rcrunch", ab]] });
+  const B = (sq, th, pk, y, rl, cl, sd, thName, ab = "3 × 20, по 10 на сторону") => ({ kind: "B", list: [["squat", sq], ["thrust", th, thName], ["pike", pk], ["ytw", y], ["rlunge", rl], ["climber", cl], ["side", sd], ["bike", ab]] });
   const C = rounds => ({ kind: "C", rounds });
   const W = text => ({ kind: "W", text });
   const R = text => ({ kind: "R", text });
   const M = () => ({ kind: "M" });
 
   const A_w1hard = A("4 × 10 на ногу", "4 × 12", "4 × 12", "4 × 12", "3 × 45 сек");
-  const A_w3 = A("4 × 12 на ногу", "4 × 8–10, пауза 2 сек внизу", "4 × 10, пауза 3 сек вверху", "4 × 15", "3 × 50 сек");
+  const A_w3 = A("4 × 12 на ногу", "4 × 8–10, пауза 2 сек внизу", "4 × 10, пауза 3 сек вверху", "4 × 15", "3 × 50 сек", "3 × 15");
   const B_w2 = B("4 × 12–15", "3 × 10 на одной ноге", "3 × 8", "4 круга по 8", "3 × 10 на ногу", "3 × 40 сек", "3 × 25 сек");
   const B_w2b = B("4 × 13–16", "3 × 11 на одной ноге", "3 × 9", "4 круга по 9", "3 × 11 на ногу", "3 × 45 сек", "3 × 30 сек");
-  const B_w3 = B("4 × 15–20", "4 × 12 на одной ноге", "3 × 10", "4 круга по 10", "3 × 12 на ногу", "3 × 45 сек", "3 × 30 сек");
+  const B_w3 = B("4 × 15–20", "4 × 12 на одной ноге", "3 × 10", "4 круга по 10", "3 × 12 на ногу", "3 × 45 сек", "3 × 30 сек", undefined, "3 × 24, по 12 на сторону");
   const light = s => ({ kind: s.kind, light: true, list: s.list.map(([k, r, x]) => [k, r.replace(/^\d/, "2–3"), x]) });
 
   // index 0..6 = «Пн..Вс» плана (= вт..пн календаря)
   const PLAN = [
     [A("3 × 8 на ногу", "3 × 8–10", "3 × 10", "3 × 10", "3 × 30 сек"), C(8), B("3 × 12", "3 × 15", "3 × 6", "3 круга по 6", "3 × 8 на ногу", "3 × 30 сек", "2 × 20 сек"), M(), A_w1hard, W(60), R()],
-    [B_w2, C(10), A_w1hard, M(), B_w2b, W("75 мин или 6 раундов лестницы"), R()],
-    [A_w3, C(12), B_w3, M(), A_w3, W("90 мин или 8 раундов лестницы"), R()],
+    [B_w2, C(10), A_w1hard, M(), B_w2b, W("75 мин"), R()],
+    [A_w3, C(12), B_w3, M(), A_w3, W("90 мин"), R()],
     [light(B_w3), C(8), light(A_w3), M(), light(B_w3), W("60–90 мин"), R("Замерь талию и сфотографируйся, пришли цифры, соберу следующий цикл.")]
   ];
 
