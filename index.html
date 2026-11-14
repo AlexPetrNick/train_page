@@ -211,7 +211,7 @@ main .wrap { padding-bottom: 110px }
   };
 
   const A = (l, p, s, b, pl, ab = "3 × 12") => ({ kind: "A", list: [["lunge", l], ["push", p], ["superman", s], ["bridge1", b], ["plank", pl], ["rcrunch", ab]] });
-  const B = (sq, th, pk, y, rl, cl, sd, thName, ab = "3 × 20, по 10 на сторону") => ({ kind: "B", list: [["squat", sq], ["thrust", th, thName], ["pike", pk], ["ytw", y], ["rlunge", rl], ["climber", cl], ["side", sd], ["bike", ab]] });
+  const B = (sq, th, pk, y, rl, cl, sd, thName, ab = "3 × 20, по 10 на сторону") => ({ kind: "B", list: [["squat", sq], ["thrust", th, thName], ["pike", pk], ["ytw", y], ["climber", cl], ["side", sd], ["bike", ab]] });
   const C = rounds => ({ kind: "C", rounds });
   const W = text => ({ kind: "W", text });
   const R = text => ({ kind: "R", text });
@@ -221,7 +221,7 @@ main .wrap { padding-bottom: 110px }
   const A_w3 = A("4 × 12 на ногу, пауза 2 сек внизу", "4 × 8–10, пауза 2 сек внизу", "4 × 10, пауза 3 сек вверху", "4 × 15", "3 × 50 сек", "3 × 15");
   const B_w2 = B("4 × 12–15", "3 × 10 на одной ноге", "3 × 8", "4 круга по 8", "3 × 10 на ногу", "3 × 40 сек", "3 × 25 сек");
   const B_w2b = B("4 × 13–16", "3 × 11 на одной ноге", "3 × 9", "4 круга по 9", "3 × 11 на ногу", "3 × 45 сек", "3 × 30 сек");
-  const B_w3 = B("4 × 15–20", "4 × 12 на одной ноге", "3 × 10", "4 круга по 10", "3 × 12 на ногу", "3 × 45 сек", "3 × 30 сек", undefined, "3 × 24, по 12 на сторону");
+  const B_w3 = B("3 × 15–20", "3 × 12 на одной ноге", "3 × 10", "3 круга по 10", "3 × 12 на ногу", "3 × 45 сек", "3 × 30 сек", undefined, "3 × 24, по 12 на сторону");
   const light = s => ({ kind: s.kind, light: true, list: s.list.map(([k, r, x]) => [k, r.replace(/^\d/, "2–3"), x]) });
 
   // index 0..6 = «Пн..Вс» плана (= вт..пн календаря)
