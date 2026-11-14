@@ -77,6 +77,16 @@
    "steps": 12736,
    "kcal": 2539,
    "activeMin": 114
+  },
+  "2026-11-14": {
+   "steps": 33180,
+   "kcal": 3523,
+   "activeMin": 361,
+   "workout": "Силовая B",
+   "workoutMin": 62,
+   "workoutKcal": 554,
+   "hrAvg": 126,
+   "hrMax": 159
   }
  }
 }
