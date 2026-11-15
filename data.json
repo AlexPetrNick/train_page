@@ -87,6 +87,12 @@
    "workoutKcal": 554,
    "hrAvg": 126,
    "hrMax": 159
+  },
+  "2026-11-15": {
+   "steps": 16447,
+   "kcal": 2264,
+   "activeMin": 166,
+   "workout": "Ходьба"
   }
  }
 }
