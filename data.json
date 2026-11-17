@@ -93,6 +93,21 @@
    "kcal": 2264,
    "activeMin": 166,
    "workout": "Ходьба"
+  },
+  "2026-11-16": {
+   "steps": 10314,
+   "kcal": 2443,
+   "activeMin": 101
+  },
+  "2026-11-17": {
+   "steps": 11015,
+   "kcal": 2318,
+   "activeMin": 169,
+   "workout": "Силовая A",
+   "workoutMin": 66,
+   "workoutKcal": 568,
+   "hrAvg": 122,
+   "hrMax": 160
   }
  }
 }
