@@ -370,7 +370,7 @@ main .wrap { padding-bottom: 110px }
     } else if (session.kind === "C") {
       title.textContent = "Кардио и 100 отжиманий";
       chip.textContent = "Кардио"; chip.className = "chip hot";
-      blocks.append(block("workout", "Кардио: " + session.rounds + " раундов", "30 сек работа / 60 сек отдых, всего около " + Math.round(session.rounds * 1.5 + 8) + " мин с разминкой.",
+      blocks.append(block("workout", "Кардио: " + session.rounds + " раундов", "30 сек работа / 60 сек отдых: " + session.rounds + " раундов = " + (session.rounds * 1.5) + " мин. Плюс около 8 мин разминки до и заминки после, всего ~" + Math.round(session.rounds * 1.5 + 8) + " мин.",
         [exRow("rope", session.rounds + " × 30 сек"), el("div", { class: "links" }, vlink("qct-gB6bukE", "Скакалка"), vlink("Y1khBnXE83Q", "Лёгкий вариант шагом"))]));
     } else if (session.kind === "W") {
       const t = typeof session.text === "number" ? session.text + " мин" : session.text;
