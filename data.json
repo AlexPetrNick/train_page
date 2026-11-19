@@ -118,6 +118,26 @@
    "workoutKcal": 300,
    "hrAvg": 144,
    "hrMax": 172
+  },
+  "2026-11-19": {
+   "steps": 22854,
+   "kcal": 2910,
+   "activeMin": 253,
+   "activeKcal": 1780,
+   "km": 18.01,
+   "workout": "Круговая (выполнена не полностью)",
+   "workoutMin": 45,
+   "workoutKcal": 383,
+   "hrAvg": 122,
+   "hrMax": 145,
+   "workoutDuration": "44:56",
+   "warmup": {
+    "duration": "12:08",
+    "kcal": 94,
+    "hrAvg": 113,
+    "hrMax": 137
+   },
+   "notes": "Тяжёлый день; круговая выполнена не полностью."
   }
  }
 }
