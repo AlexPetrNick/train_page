@@ -367,6 +367,11 @@ main .wrap { padding-bottom: 110px }
       chip.textContent = "Силовая"; chip.className = "chip hot";
       const meta = (session.light ? "По 2–3 подхода, с запасом 3 повтора. " : "") + "Разминка 8–10 мин, отдых между подходами 60–90 сек, в конце 5 мин растяжки.";
       blocks.append(block("workout", "Силовая " + session.kind, meta, session.list.map(([k, r, nm]) => exRow(k, r, nm))));
+      blocks.append(block("cooldown", "Растяжка после силовой · 5 минут", "Oliver Sjostrom · всё тело · без инвентаря", [
+        vbtn("QF7pYMrGeCY", "Включить растяжку · 5 мин"),
+        el("a", { class: "vlink", href: YT("QF7pYMrGeCY"), target: "_blank", rel: "noopener", text: "Открыть на YouTube" }),
+        el("p", { class: "note", text: "Комфортное натяжение, без боли. Отмечай отдельно после выполнения." })
+      ]));
     } else if (session.kind === "C") {
       title.textContent = "Кардио и 100 отжиманий";
       chip.textContent = "Кардио"; chip.className = "chip hot";
