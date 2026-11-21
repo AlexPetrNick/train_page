@@ -138,6 +138,28 @@
     "hrMax": 137
    },
    "notes": "Тяжёлый день; круговая выполнена не полностью."
+  },
+  "2026-11-20": {
+   "steps": 14581,
+   "activeMin": 142,
+   "activeKcal": 860,
+   "kcal": 2491,
+   "km": 10.59
+  },
+  "2026-11-21": {
+   "steps": 29406,
+   "activeMin": 315,
+   "activeKcal": 2169,
+   "kcal": 3140,
+   "km": 19.5,
+   "workout": "Силовая A",
+   "workoutMin": 60,
+   "workoutDuration": "1:00:08",
+   "workoutElapsedDuration": "1:08:13",
+   "workoutKcal": 533,
+   "workoutTotalKcal": 543,
+   "hrAvg": 126,
+   "hrMax": 160
   }
  }
 }
