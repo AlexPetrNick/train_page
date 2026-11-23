@@ -167,6 +167,13 @@
    "activeKcal": 972,
    "kcal": 2332,
    "km": 10.73
+  },
+  "2026-11-23": {
+   "steps": 14935,
+   "activeMin": 155,
+   "activeKcal": 988,
+   "kcal": 2110,
+   "km": 11
   }
  }
 }
