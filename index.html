@@ -379,7 +379,7 @@ main .wrap { padding-bottom: 110px }
       chip.textContent = "Восстановление";
       blocks.append(block("workout", "Лёгкое кардио · 15–20 минут", "Спокойный темп: можешь говорить полными предложениями. Без интенсивной круговой и цели по калориям.", [
         vbtn("Y1khBnXE83Q", "Шаг на месте · видео"),
-        el("p", { class: "note", text: "Начинай, если утром чувствуешь себя восстановившимся. При сохраняющейся тяжести — комфортная прогулка или отдых. Зарядка по самочувствию; дополнительные отжимания и плечи сегодня не нужны." })
+        el("p", { class: "note", text: "Начинай, если утром чувствуешь себя восстановившимся. При сохраняющейся тяжести — комфортная прогулка или отдых. Зарядка и отжимания по самочувствию; дополнительный блок плеч сегодня убран." })
       ]));
     } else if (session.kind === "C") {
       title.textContent = "Кардио и 100 отжиманий";
@@ -401,7 +401,7 @@ main .wrap { padding-bottom: 110px }
       if (session.text) blocks.append(block("workout", "Замер в конце цикла", session.text));
     }
 
-    if (inCycle && session.kind !== "A" && session.kind !== "B" && !session.recovery)
+    if (inCycle && session.kind !== "A" && session.kind !== "B")
       blocks.append(block("pushups", "100 отжиманий", "Подходами по 10–15, максимум 20. С правильной техникой.", pushCounter()));
 
     if (inCycle && session.kind !== "A" && session.kind !== "B" && !session.recovery)
