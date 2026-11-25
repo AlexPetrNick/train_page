@@ -210,6 +210,18 @@ main .wrap { padding-bottom: 110px }
     rope:    { n: "Скакалка или бег на месте", gif: "anim/Rope_Jumping.webp", v: "Q6wLjVizmGg", tip: "30 сек работа / 60 сек отдых. Без прыжков: шаг с высокими коленями." }
   };
 
+  EX.lateral = { n: "Боковые выпады", gif: null, v: "apsp_uuXZTU", tip: "" };
+  EX.calf = { n: "Подъёмы на носки без веса", gif: null, v: "Zep-wKHWkNM", tip: "" };
+  EX.floorpush = { n: "Отжимания от пола", gif: null, v: "Env8gAr_QnE", tip: "" };
+  const STRENGTH_C = { kind: "S", label: "C", list: [
+    ["lateral", "3 × 8–10 на сторону"],
+    ["bridge1", "3 × 12 на ногу"],
+    ["floorpush", "3 × 8–12 · только без боли"],
+    ["ytw", "3 круга по 8 · только без боли"],
+    ["calf", "3 × 15–20"],
+    ["bike", "3 × 20, по 10 на сторону"]
+  ] };
+
   const A = (l, p, s, b, pl, ab = "3 × 12") => ({ kind: "A", list: [["lunge", l], ["push", p], ["superman", s], ["bridge1", b], ["plank", pl], ["rcrunch", ab]] });
   const B = (sq, th, pk, y, rl, cl, sd, thName, ab = "3 × 20, по 10 на сторону") => ({ kind: "B", list: [["squat", sq], ["thrust", th, thName], ["pike", pk], ["ytw", y], ["climber", cl], ["side", sd], ["bike", ab]] });
   const C = rounds => ({ kind: "C", rounds });
@@ -349,7 +361,7 @@ main .wrap { padding-bottom: 110px }
       "2026-11-25": { ...B_w3, shoulderCare: true },
       "2026-11-26": { kind: "R", shoulderCare: true },
       "2026-11-27": { kind: "C", recovery: true, shoulderCare: true },
-      "2026-11-28": { ...A_w3, shoulderCare: true },
+      "2026-11-28": { ...STRENGTH_C, shoulderCare: true },
       "2026-11-29": { kind: "R", shoulderCare: true }
     };
     session = revisedWeek[curKey] || session;
@@ -377,11 +389,11 @@ main .wrap { padding-bottom: 110px }
       title.textContent = dayIdx < 0 ? "Цикл ещё не начался" : "Цикл 1 закончен";
       chip.textContent = "Пауза";
       blocks.append(el("section", { class: "block" }, el("p", { class: "note", text: dayIdx < 0 ? "План стартовал 3 ноября." : "Пришли талию, средний вес и фото, и я соберу план на следующие 4 недели. Пока держи шаги и утреннюю зарядку." })));
-    } else if (session.kind === "A" || session.kind === "B") {
-      title.textContent = "Силовая " + session.kind + (session.light ? ", разгрузка" : "");
+    } else if (session.kind === "A" || session.kind === "B" || session.kind === "S") {
+      title.textContent = "Силовая " + (session.label || session.kind) + (session.light ? ", разгрузка" : "");
       chip.textContent = "Силовая"; chip.className = "chip hot";
       const meta = (session.light ? "По 2–3 подхода, с запасом 3 повтора. " : "") + "Разминка 8–10 мин, отдых между подходами 60–90 сек, в конце 5 мин растяжки.";
-      blocks.append(block("workout", "Силовая " + session.kind, meta, session.list.map(([k, r, nm]) => exRow(k, r, nm))));
+      blocks.append(block("workout", "Силовая " + (session.label || session.kind), meta, session.list.map(([k, r, nm]) => exRow(k, r, nm))));
       if (session.shoulderCare)
         blocks.append(el("p", { class: "note", text: "Полный список сохранён. Сам выбирай, что сократить или пропустить. При боли в плечах останови вызывающее её упражнение." }));
       blocks.append(block("cooldown", "Растяжка после силовой · 5 минут", "Oliver Sjostrom · всё тело · без инвентаря", [
@@ -416,10 +428,10 @@ main .wrap { padding-bottom: 110px }
       if (session.text) blocks.append(block("workout", "Замер в конце цикла", session.text));
     }
 
-    if (inCycle && session.kind !== "A" && session.kind !== "B")
+    if (inCycle && session.kind !== "A" && session.kind !== "B" && session.kind !== "S")
       blocks.append(block("pushups", session.shoulderCare ? "Отжимания · необязательно" : "100 отжиманий", session.shoulderCare ? "Цель 100 временно отменена. Счётчик оставлен по твоему желанию. При боли — остановись; оцени плечи и следующим утром." : "Подходами по 10–15, максимум 20. С правильной техникой.", pushCounter(!!session.shoulderCare)));
 
-    if (inCycle && session.kind !== "A" && session.kind !== "B" && !session.recovery && !session.shoulderCare)
+    if (inCycle && session.kind !== "A" && session.kind !== "B" && session.kind !== "S" && !session.recovery && !session.shoulderCare)
       blocks.append(block("shoulders", "Плечи, 5 мин", "Укрепляем выносливость плеч. Плечи всё время опущены от ушей, жжение нормально, острая боль или онемение — стоп.", [
         el("div", { class: "links" },
           vlink("mCLSJhDh-Sc", "Ангел у стены 2 × 10"),
