@@ -188,6 +188,20 @@
    "workoutKcal": 337,
    "hrAvg": 143,
    "hrMax": 166
+  },
+  "2026-11-25": {
+   "steps": 16792,
+   "kcal": 2675,
+   "activeMin": 214,
+   "activeKcal": 1470,
+   "km": 11.54,
+   "workout": "Силовая B",
+   "workoutMin": 58,
+   "workoutDuration": "57:41",
+   "workoutTimerDuration": "57:38",
+   "workoutKcal": 496,
+   "hrAvg": 122,
+   "hrMax": 148
   }
  }
 }
