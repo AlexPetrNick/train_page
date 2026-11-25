@@ -342,14 +342,14 @@ main .wrap { padding-bottom: 110px }
     week = Math.floor(dayIdx / 7);
     inCycle = dayIdx >= 0 && week < 4;
     session = inCycle ? PLAN[week][dayIdx % 7] : null;
-    // Пересмотр календарной недели с учётом выполненного кардио и боли в плечах.
+    // Календарная неделя: полные силовые B/A, объём пользователь регулирует сам.
     const revisedWeek = {
       "2026-11-23": { kind: "R" },
       "2026-11-24": { kind: "C", recovery: true },
-      "2026-11-25": { kind: "L", shoulderCare: true },
+      "2026-11-25": { ...B_w3, shoulderCare: true },
       "2026-11-26": { kind: "R", shoulderCare: true },
       "2026-11-27": { kind: "C", recovery: true, shoulderCare: true },
-      "2026-11-28": { kind: "L", shoulderCare: true },
+      "2026-11-28": { ...A_w3, shoulderCare: true },
       "2026-11-29": { kind: "R", shoulderCare: true }
     };
     session = revisedWeek[curKey] || session;
@@ -382,23 +382,12 @@ main .wrap { padding-bottom: 110px }
       chip.textContent = "Силовая"; chip.className = "chip hot";
       const meta = (session.light ? "По 2–3 подхода, с запасом 3 повтора. " : "") + "Разминка 8–10 мин, отдых между подходами 60–90 сек, в конце 5 мин растяжки.";
       blocks.append(block("workout", "Силовая " + session.kind, meta, session.list.map(([k, r, nm]) => exRow(k, r, nm))));
+      if (session.shoulderCare)
+        blocks.append(el("p", { class: "note", text: "Полный список сохранён. Сам выбирай, что сократить или пропустить. При боли в плечах останови вызывающее её упражнение." }));
       blocks.append(block("cooldown", "Растяжка после силовой · 5 минут", "Oliver Sjostrom · всё тело · без инвентаря", [
         vbtn("QF7pYMrGeCY", "Включить растяжку · 5 мин"),
         el("a", { class: "vlink", href: YT("QF7pYMrGeCY"), target: "_blank", rel: "noopener", text: "Открыть на YouTube" }),
         el("p", { class: "note", text: "Комфортное натяжение, без боли. Отмечай отдельно после выполнения." })
-      ]));
-    } else if (session.kind === "L") {
-      title.textContent = "Лёгкая силовая · ноги";
-      chip.textContent = "Разгрузка";
-      blocks.append(block("workout", "Ноги · 20–25 минут", "Разминка включена во время. По 2 подхода, с запасом 3–4 повтора; отдых 60–90 секунд. Только без боли в плечах.", [
-        vlink("Y1khBnXE83Q", "Разминка · спокойный шаг 3–5 мин"),
-        exRow("squat", "2 × 10–12"),
-        exRow("rlunge", "2 × 6–8 на ногу"),
-        exRow("bridge1", "2 × 8–10 на ногу"),
-        el("p", { class: "note", text: "Без пайка, скалолаза, планок и обязательных отжиманий. При сохраняющейся усталости сократи до одного подхода или выбери отдых." })
-      ]));
-      blocks.append(block("cooldown", "Растяжка · до 5 минут", "Только комфортные движения; болезненные положения и упоры на руки пропускай.", [
-        vbtn("QF7pYMrGeCY", "Открыть растяжку")
       ]));
     } else if (session.kind === "C" && session.recovery) {
       title.textContent = "Лёгкое кардио · 15–20 минут";
