@@ -367,13 +367,11 @@ main .wrap { padding-bottom: 110px }
     sub.textContent = dateStr[0].toUpperCase() + dateStr.slice(1) + (inCycle ? " · неделя " + (week + 1) + " из 4" : "");
 
     const m = MORNING[cur.getDay()];
-    if (session && session.shoulderCare)
-      blocks.append(el("section", { class: "block" }, el("h2", { text: "Утро · по самочувствию" }),
-        el("p", { class: "note", text: "Обычная зарядка временно необязательна. Без болезненных движений и длительного удержания рук. Лёгкий вариант — видео ниже." }),
-        vbtn("Y1khBnXE83Q", "Спокойный шаг · видео")));
-    else
-    blocks.append(block("morning", "Утренняя зарядка", m[1] + " · Ivan Krasavin", [vbtn(m[0], "Включить зарядку"),
-      el("div", { class: "links" }, MORE.map(([id, t]) => vlink(id, t)))]));
+    blocks.append(block("morning", "Утренняя зарядка", m[1] + " · Ivan Krasavin", [
+      vbtn(m[0], "Включить зарядку"),
+      el("div", { class: "links" }, MORE.map(([id, t]) => vlink(id, t))),
+      session && session.shoulderCare ? el("p", { class: "note", text: "Зарядку сохраняем. Временно сокращай длительное удержание рук; движения, вызывающие боль в плечах, пропускай. Остальную часть выполняй в комфортном темпе." }) : null
+    ]));
 
     if (!inCycle) {
       title.textContent = dayIdx < 0 ? "Цикл ещё не начался" : "Цикл 1 закончен";
@@ -407,7 +405,7 @@ main .wrap { padding-bottom: 110px }
       chip.textContent = "Восстановление";
       blocks.append(block("workout", "Лёгкое кардио · 15–20 минут", "Спокойный темп: можешь говорить полными предложениями. Без интенсивной круговой и цели по калориям.", [
         vbtn("Y1khBnXE83Q", "Шаг на месте · видео"),
-        el("p", { class: "note", text: "Начинай, если утром чувствуешь себя восстановившимся. При сохраняющейся тяжести — комфортная прогулка или отдых. Зарядка и отжимания по самочувствию; дополнительный блок плеч сегодня убран." })
+        el("p", { class: "note", text: "Начинай, если утром чувствуешь себя восстановившимся. При сохраняющейся тяжести — комфортная прогулка или отдых. Зарядка остаётся в плане; болезненные движения пропускай. Отжимания — только без боли; дополнительный блок плеч сегодня убран." })
       ]));
     } else if (session.kind === "C") {
       title.textContent = "Кардио и 100 отжиманий";
