@@ -303,8 +303,8 @@ main .wrap { padding-bottom: 110px }
   const PK = "fitplan-push";
   function loadPush() { try { return JSON.parse(localStorage.getItem(PK) || "{}"); } catch (e) { return {}; } }
   function savePush(o) { try { localStorage.setItem(PK, JSON.stringify(o)); } catch (e) {} }
-  function pushCounter() {
-    const GOAL = 100, k = curKey;
+  function pushCounter(noGoal = false) {
+    const GOAL = noGoal ? Infinity : 100, k = curKey;
     const wrap = el("div", { class: "pc" });
     const num = el("div", { class: "pc-num" });
     const bar = el("div", { class: "pc-bar" }, el("i"));
@@ -313,7 +313,7 @@ main .wrap { padding-bottom: 110px }
     function draw() {
       const all = loadPush(), arr = all[k] || [], sum = arr.reduce((a, b) => a + b, 0);
       num.textContent = "";
-      num.append(el("b", { text: String(sum) }), " / " + GOAL, el("span", { text: arr.length ? " · " + arr.length + " " + (arr.length % 10 === 1 && arr.length % 100 !== 11 ? "подход" : (arr.length % 10 >= 2 && arr.length % 10 <= 4 && (arr.length % 100 < 12 || arr.length % 100 > 14)) ? "подхода" : "подходов") : "" }));
+      num.append(el("b", { text: String(sum) }), (noGoal ? " повторов" : " / " + GOAL), el("span", { text: arr.length ? " · " + arr.length + " " + (arr.length % 10 === 1 && arr.length % 100 !== 11 ? "подход" : (arr.length % 10 >= 2 && arr.length % 10 <= 4 && (arr.length % 100 < 12 || arr.length % 100 > 14)) ? "подхода" : "подходов") : "" }));
       bar.firstChild.style.width = Math.min(100, sum / GOAL * 100) + "%";
       bar.classList.toggle("full", sum >= GOAL);
       sets.textContent = arr.length ? arr.join(" + ") : "Сделал подход — нажми, сколько раз";
@@ -330,6 +330,7 @@ main .wrap { padding-bottom: 110px }
     const undo = el("button", { type: "button", class: "pc-undo", text: "Отменить" });
     undo.addEventListener("click", () => { const all = loadPush(); const arr = all[k] || []; arr.pop(); all[k] = arr; savePush(all); draw(); });
     btns.append(undo);
+    bar.hidden = noGoal;
     wrap.append(num, bar, btns, sets);
     draw();
     return wrap;
@@ -341,8 +342,17 @@ main .wrap { padding-bottom: 110px }
     week = Math.floor(dayIdx / 7);
     inCycle = dayIdx >= 0 && week < 4;
     session = inCycle ? PLAN[week][dayIdx % 7] : null;
-    // Разовая замена после согласованного отдыха от силовых.
-    if (curKey === "2026-11-24") session = { kind: "C", recovery: true };
+    // Пересмотр календарной недели с учётом выполненного кардио и боли в плечах.
+    const revisedWeek = {
+      "2026-11-23": { kind: "R" },
+      "2026-11-24": { kind: "C", recovery: true },
+      "2026-11-25": { kind: "L", shoulderCare: true },
+      "2026-11-26": { kind: "R", shoulderCare: true },
+      "2026-11-27": { kind: "C", recovery: true, shoulderCare: true },
+      "2026-11-28": { kind: "L", shoulderCare: true },
+      "2026-11-29": { kind: "R", shoulderCare: true }
+    };
+    session = revisedWeek[curKey] || session;
     const mon = new Date(cur); mon.setDate(cur.getDate() - ((cur.getDay() + 6) % 7));
     weekKeys = Array.from({ length: 7 }, (_, i) => { const d = new Date(mon); d.setDate(mon.getDate() + i); return key(d); });
     const sun = new Date(mon); sun.setDate(mon.getDate() + 6);
@@ -357,6 +367,11 @@ main .wrap { padding-bottom: 110px }
     sub.textContent = dateStr[0].toUpperCase() + dateStr.slice(1) + (inCycle ? " · неделя " + (week + 1) + " из 4" : "");
 
     const m = MORNING[cur.getDay()];
+    if (session && session.shoulderCare)
+      blocks.append(el("section", { class: "block" }, el("h2", { text: "Утро · по самочувствию" }),
+        el("p", { class: "note", text: "Обычная зарядка временно необязательна. Без болезненных движений и длительного удержания рук. Лёгкий вариант — видео ниже." }),
+        vbtn("Y1khBnXE83Q", "Спокойный шаг · видео")));
+    else
     blocks.append(block("morning", "Утренняя зарядка", m[1] + " · Ivan Krasavin", [vbtn(m[0], "Включить зарядку"),
       el("div", { class: "links" }, MORE.map(([id, t]) => vlink(id, t)))]));
 
@@ -373,6 +388,19 @@ main .wrap { padding-bottom: 110px }
         vbtn("QF7pYMrGeCY", "Включить растяжку · 5 мин"),
         el("a", { class: "vlink", href: YT("QF7pYMrGeCY"), target: "_blank", rel: "noopener", text: "Открыть на YouTube" }),
         el("p", { class: "note", text: "Комфортное натяжение, без боли. Отмечай отдельно после выполнения." })
+      ]));
+    } else if (session.kind === "L") {
+      title.textContent = "Лёгкая силовая · ноги";
+      chip.textContent = "Разгрузка";
+      blocks.append(block("workout", "Ноги · 20–25 минут", "Разминка включена во время. По 2 подхода, с запасом 3–4 повтора; отдых 60–90 секунд. Только без боли в плечах.", [
+        vlink("Y1khBnXE83Q", "Разминка · спокойный шаг 3–5 мин"),
+        exRow("squat", "2 × 10–12"),
+        exRow("rlunge", "2 × 6–8 на ногу"),
+        exRow("bridge1", "2 × 8–10 на ногу"),
+        el("p", { class: "note", text: "Без пайка, скалолаза, планок и обязательных отжиманий. При сохраняющейся усталости сократи до одного подхода или выбери отдых." })
+      ]));
+      blocks.append(block("cooldown", "Растяжка · до 5 минут", "Только комфортные движения; болезненные положения и упоры на руки пропускай.", [
+        vbtn("QF7pYMrGeCY", "Открыть растяжку")
       ]));
     } else if (session.kind === "C" && session.recovery) {
       title.textContent = "Лёгкое кардио · 15–20 минут";
@@ -402,9 +430,9 @@ main .wrap { padding-bottom: 110px }
     }
 
     if (inCycle && session.kind !== "A" && session.kind !== "B")
-      blocks.append(block("pushups", "100 отжиманий", "Подходами по 10–15, максимум 20. С правильной техникой.", pushCounter()));
+      blocks.append(block("pushups", session.shoulderCare ? "Отжимания · необязательно" : "100 отжиманий", session.shoulderCare ? "Цель 100 временно отменена. Счётчик оставлен по твоему желанию. При боли — остановись; оцени плечи и следующим утром." : "Подходами по 10–15, максимум 20. С правильной техникой.", pushCounter(!!session.shoulderCare)));
 
-    if (inCycle && session.kind !== "A" && session.kind !== "B" && !session.recovery)
+    if (inCycle && session.kind !== "A" && session.kind !== "B" && !session.recovery && !session.shoulderCare)
       blocks.append(block("shoulders", "Плечи, 5 мин", "Укрепляем выносливость плеч. Плечи всё время опущены от ушей, жжение нормально, острая боль или онемение — стоп.", [
         el("div", { class: "links" },
           vlink("mCLSJhDh-Sc", "Ангел у стены 2 × 10"),
@@ -412,9 +440,9 @@ main .wrap { padding-bottom: 110px }
           vlink("hVCdqpxhAMU", "Y-T-W стоя 2 круга по 8"),
           vlink("ZD0Rxjq6muA", "Лопаточные отжимания 2 × 10"))]));
 
-    blocks.append(block("steps", "8–10 тыс. шагов", "Часы считают сами. Вечером пришли скрин, и шапка обновится."));
+    blocks.append(block("steps", session && session.shoulderCare ? "Комфортная ходьба" : "8–10 тыс. шагов", session && session.shoulderCare ? "Без обязательного минимума и добивания колец. Пришли скрин для учёта активности." : "Часы считают сами. Вечером пришли скрин, и шапка обновится."));
 
-    blocks.append(block("hourly", "Разминка раз в час", "Часы вибрируют через 50 мин без движения. Встаёшь и делаешь:", [
+    if (!(session && session.shoulderCare)) blocks.append(block("hourly", "Разминка раз в час", "Часы вибрируют через 50 мин без движения. Встаёшь и делаешь:", [
       el("div", { class: "links" }, vlink("0jR4FxC2s6c", "Приседания × 15"), vlink("4ES8h7fn5yw", "Локоть к колену × 10 на сторону"), vlink("Y1khBnXE83Q", "Шаг на месте 30 сек")),
       el("div", { class: "links" }, vlink("8f_8WvC0kpY", "Или 5 мин: живот и спина стоя"), vlink("r4wqKqlcNag", "Или 5 мин: осанка"))]));
     paint();
