@@ -202,6 +202,13 @@
    "workoutKcal": 496,
    "hrAvg": 122,
    "hrMax": 148
+  },
+  "2026-11-26": {
+   "steps": 21529,
+   "activeMin": 204,
+   "activeKcal": 1282,
+   "kcal": 2490,
+   "km": 15.19
   }
  }
 }
