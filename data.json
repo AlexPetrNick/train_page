@@ -209,6 +209,22 @@
    "activeKcal": 1282,
    "kcal": 2490,
    "km": 15.19
+  },
+  "2026-11-27": {
+   "steps": 13585,
+   "activeMin": 134,
+   "activeKcal": 1052,
+   "kcal": 2343,
+   "km": 6.85,
+   "workout": "Кардио: скакалка + высокое поднимание бедра (50/50)",
+   "workoutMin": 32,
+   "workoutDuration": "32:20",
+   "workoutTimerDuration": "32:17",
+   "workoutKcal": 354,
+   "workoutTotalKcal": 355,
+   "hrAvg": 146,
+   "hrMax": 169,
+   "notes": "Из-за дождей меньше прогулок; кардио увеличено, скакалка и высокое поднимание бедра примерно 50/50."
   }
  }
 }
